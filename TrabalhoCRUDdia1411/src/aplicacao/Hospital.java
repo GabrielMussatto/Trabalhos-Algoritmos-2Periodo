@@ -2,6 +2,7 @@ package aplicacao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -14,6 +15,7 @@ public class Hospital {
 	private Instituicao instituicao;
 	private List<Medico> medicos;
 	private static Map<String, Hospital> hospitalMap = new HashMap<>();
+	private static Scanner scan = new Scanner(System.in);
 
 	public Hospital(String nomeH, String endereco, String email, Instituicao instituicao, List<Medico> medicos) {
 		super();
@@ -39,7 +41,6 @@ public class Hospital {
 	}
 
 	public static void cadastrarHospital() {
-		Scanner scan = new Scanner(System.in);
 		Hospital hospital = new Hospital();
 
 		System.out.println("Informe o nome do Hospital: ");
@@ -77,63 +78,92 @@ public class Hospital {
 	}
 
 	public static void alterarHospital() {
-		Scanner scan = new Scanner (System.in);
-	
-		System.out.println("Informe o nome do Hospital a ser alterado: ");
-		String nome = scan.nextLine();
-		
-		if(hospitalMap.containsKey(nome)) {
-			Hospital novoHospital = new Hospital();
-			
-			System.out.println("Informe o nome do Hospital: ");
-			novoHospital.setNomeH(scan.nextLine());
+	    int tentativas = 3;
+	    boolean nomeValido = false;
 
-			System.out.println("Informe o endereço do Hospital: ");
-			novoHospital.setEndereco(scan.nextLine());
+	    while (tentativas >= 0 && !nomeValido) {
+	        try {
+	            System.out.println("Informe o nome do Hospital a ser alterado: ");
+	            String nome = scan.nextLine();
 
-			System.out.println("Informe o email do Hospital: ");
-			novoHospital.setEmail(scan.nextLine());
+	            if (!hospitalMap.containsKey(nome)) {
+	                System.out.println("Hospital não encontrado! Tente novamente. Você tem " + tentativas + " Tentativas");
+	                tentativas--;
+	            } else {
+	                Hospital novoHospital = new Hospital();
 
-			System.out.println("Informe a Instituição do Hospital");
-			for (Instituicao instituicao : Instituicao.values()) {
-				System.out.println(instituicao.getId() + " - " + instituicao.getDescricao());
-			}
+	                System.out.println("Informe o nome do Hospital: ");
+	                novoHospital.setNomeH(scan.nextLine());
 
-			novoHospital.setInstituicao(Instituicao.valueOf(scan.nextInt()));
+	                System.out.println("Informe o endereço do Hospital: ");
+	                novoHospital.setEndereco(scan.nextLine());
 
-			List<Medico> medicos = new ArrayList<>();
-			System.out.println("Informe o número de Médicos do Hospital: ");
-			int numMedicos = scan.nextInt();
+	                System.out.println("Informe o email do Hospital: ");
+	                novoHospital.setEmail(scan.nextLine());
 
-			for (int i = 0; i < numMedicos; i++) {
-				System.out.println("Informe o nome do Médico " + (i + 1) + ": ");
-				String nomeMedico = scan.next();
-				System.out.println("Informe a especialidade do Médico " + (i + 1) + ": ");
-				String especialidadeMedico = scan.next();
-				medicos.add(new Medico(nomeMedico, especialidadeMedico));
-			}
+	                System.out.println("Informe a Instituição do Hospital");
+	                for (Instituicao instituicao : Instituicao.values()) {
+	                    System.out.println(instituicao.getId() + " - " + instituicao.getDescricao());
+	                }
+	                novoHospital.setInstituicao(Instituicao.valueOf(scan.nextInt()));
 
-			novoHospital.setMedicos(medicos);
+	                List<Medico> medicos = new ArrayList<>();
+	                System.out.println("Informe o número de Médicos do Hospital: ");
+	                int numMedicos = scan.nextInt();
 
-			hospitalMap.replace(nome, novoHospital);
-			System.out.println("O Hospital foi alterado com sucesso!!");
-		} else {
-			System.out.println("Hospital não encontrado!");
-		}
-	}	
+	                for (int i = 0; i < numMedicos; i++) {
+	                    System.out.println("Informe o nome do Médico " + (i + 1) + ": ");
+	                    String nomeMedico = scan.next();
+	                    System.out.println("Informe a especialidade do Médico " + (i + 1) + ": ");
+	                    String especialidadeMedico = scan.next();
+	                    medicos.add(new Medico(nomeMedico, especialidadeMedico));
+	                }
+
+	                novoHospital.setMedicos(medicos);
+
+	                hospitalMap.replace(nome, novoHospital);
+	                System.out.println("O Hospital foi alterado com sucesso!!");
+	                nomeValido = true;
+	            }
+	        } catch (InputMismatchException e) {
+	            System.out.println("Erro de entrada: Por favor, insira um valor válido.");
+	            scan.nextLine(); //limpando o buffer do scanner
+	            tentativas--;
+	        }
+	    }
+
+	    if (!nomeValido) {
+	        System.out.println("Limite de tentativas excedido. Voltando ao menu.");
+	    }
+	}
 
 	public static void excluirHospital() {
-		Scanner scan = new Scanner(System.in);
-		
-		System.out.println("Informe o nome do Hospital para ser excluido: ");
-		String nome = scan.next();
-		
-		if(hospitalMap.containsKey(nome)) {
-			hospitalMap.remove(nome);
-			System.out.println("Hospital excluido com sucesso!");
-		}else {
-			System.out.println("Hospital não encontrado!");
-		}
+	    int tentativas = 3;
+	    boolean nomeValido = false;
+
+	    while (tentativas >= 0 && !nomeValido) {
+	        try {
+	            System.out.println("Informe o nome do Hospital para ser excluído: ");
+	            String nome = scan.next();
+
+	            if (!hospitalMap.containsKey(nome)) {
+	                System.out.println("Hospital não encontrado! Tente novamente. Você tem " + tentativas + " Tentativas.");
+	                tentativas--;
+	            } else {
+	                hospitalMap.remove(nome);
+	                System.out.println("Hospital excluído com sucesso!");
+	                nomeValido = true;
+	            }
+	        } catch (InputMismatchException e) {
+	            System.out.println("Erro de entrada: Por favor, insira um valor válido.");
+	            scan.nextLine(); // limpando o buffer do scanner
+	            tentativas--;
+	        }
+	    }
+
+	    if (!nomeValido) {
+	        System.out.println("Limite de tentativas excedido. Voltando ao menu.");
+	    }
 	}
 
 	public static void listarHospital() {
